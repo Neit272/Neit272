@@ -337,6 +337,21 @@ def find_and_replace(root, element_id, new_text):
         element.text = new_text
 
 
+def calculate_commits(acc_date):
+    """
+    Loops through years since account creation and calculates total commits
+    """
+    total_commits = 0
+    start_year = int(acc_date[:4])
+    current_year = datetime.datetime.today().year
+    
+    for year in range(start_year, current_year + 1):
+        start_date = f"{year}-01-01T00:00:00Z"
+        end_date = f"{year}-12-31T23:59:59Z"
+        total_commits += graph_commits(start_date, end_date)
+    return total_commits
+
+
 def commit_counter(comment_size):
     """
     Counts up my total commits, using the cache file created by cache_builder.
@@ -429,7 +444,7 @@ if __name__ == '__main__':
     formatter('age calculation', age_time)
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
     formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
-    commit_data, commit_time = perf_counter(commit_counter, 7)
+    commit_data, commit_time = perf_counter(calculate_commits, acc_date)
     star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
